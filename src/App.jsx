@@ -27,6 +27,7 @@ function App() {
   }, []);
 
   // Refetch advice when shouldRefetch changes
+  // API not refetching on mozila
   useEffect(() => {
     if(shouldRefetch){
       getAdviceData();
