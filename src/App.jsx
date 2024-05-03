@@ -1,19 +1,38 @@
 /* eslint-disable react/no-unescaped-entities */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import "./styles/App.css";
 
 function App() {
-  const [defaultAdvice, setRandomAdvice] = useState({
+  // incase data dosen't load
+  const fallBack = {
     id: "117",
     advice: "Try to not compliment people on things they don't control.",
-  });
-
-  async function getAdviceData() {
-    await axios.get("https://api.adviceslip.com/advice").then((res) => {
-      setRandomAdvice(res.data.slip);
-    });
   }
+  const [defaultAdvice, setRandomAdvice] = useState(fallBack);
+  const [shouldRefetch, setshouldRefetch] = useState(false);
+
+  const getAdviceData = async () => {
+    try {
+      await axios.get("https://api.adviceslip.com/advice").then((res) => {
+        setRandomAdvice(res.data.slip);
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getAdviceData();
+  }, []);
+
+  // Refetch advice when shouldRefetch changes
+  useEffect(() => {
+    if(shouldRefetch){
+      getAdviceData();
+      setshouldRefetch(false);
+    }
+  }, [shouldRefetch]);
 
   return (
     <>
@@ -34,7 +53,7 @@ function App() {
 
         <button
           onClick={() => {
-            getAdviceData();
+            setshouldRefetch(true);
           }}
         >
           <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg">
